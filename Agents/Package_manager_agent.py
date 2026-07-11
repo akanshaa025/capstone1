@@ -1,7 +1,7 @@
 from langchain_ollama import ChatOllama
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain_core.prompts import ChatPromptTemplate
 from terminal_agent import execute_terminal_command
-from langchain_core.messages import SystemMessage
 
 llm = ChatOllama(
     model="qwen3:8b",
@@ -15,10 +15,18 @@ You MUST use the `execute_terminal_command` tool to run commands like `npm insta
 Do NOT explain your thought process to the user, just execute the commands and report success or failure.
 """
 
+prompt = ChatPromptTemplate.from_messages([
+    ("system", SYSTEM_PROMPT),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}"),
+])
+
 tools = [execute_terminal_command]
-package_manager_executor = create_react_agent(llm, tools, prompt=SYSTEM_PROMPT)
+
+agent = create_tool_calling_agent(llm, tools, prompt)
+package_manager_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 def install_dependencies(requirements: str):
     print(f"--- Package Manager Agent is analyzing dependencies ---\n")
-    response = package_manager_executor.invoke({"messages": [("user", requirements)]})
-    return response["messages"][-1].content
+    response = package_manager_executor.invoke({"input": requirements})
+    return response["output"]
