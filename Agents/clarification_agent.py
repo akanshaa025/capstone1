@@ -81,6 +81,4 @@ def run_clarification():
         # Simple heuristic to detect if requirements gathering is done
         if "These are the collected requirements" in ai_response or "Would you like to proceed with code generation?" in ai_response:
             print("\n[Clarification Complete]")
-            # Return full conversation history so planner gets all context
-            full_context = "\n".join([f"{'User' if isinstance(m, HumanMessage) else 'AI'}: {m.content}" for m in messages if isinstance(m, (HumanMessage, AIMessage))])
-            return full_context
+            return ai_response
