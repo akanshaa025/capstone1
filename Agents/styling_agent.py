@@ -51,10 +51,4 @@ Improve this component.
         ]
     )
 
-    content = response.content.strip()
-    if content.startswith("```"):
-        lines = content.split('\n')
-        if len(lines) > 1 and lines[-1].strip() == "```":
-            content = '\n'.join(lines[1:-1])
-
-    return content
+    return response.content
